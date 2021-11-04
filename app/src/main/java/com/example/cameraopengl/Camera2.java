@@ -100,6 +100,7 @@ public class Camera2 {
         startBackgroundThread();
 
         setUpCamera();
+
         CameraManager cameraManager = context.getSystemService(CameraManager.class);
 
         try {

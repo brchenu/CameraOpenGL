@@ -118,7 +118,7 @@ public class GLRenderer implements GLSurfaceView.Renderer {
     }
 
     public interface SurfaceCallback {
-        public void onGLSurfaceCreated();
+        void onGLSurfaceCreated();
     }
 
     public void setSurfaceCreateCallback(SurfaceCallback surfaceCallback) {
