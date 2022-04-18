@@ -103,6 +103,6 @@ public class GLLine {
         GLES20.glLineWidth(10.0f);
 
         // Draw the triangle
-        GLES20.glDrawArrays(GLES20.GL_LINE_STRIP , 0, vertexCount);
+        GLES20.glDrawArrays(GLES20.GL_LINES , 0, vertexCount);
     }
 }

@@ -1,19 +1,30 @@
 package com.example.cameraopengl;
 
+import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.SurfaceTexture;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
+import android.opengl.GLUtils;
 import android.opengl.Matrix;
 import android.util.Log;
 
 import com.example.cameraopengl.globjects.GLCameraTexture;
+import com.example.cameraopengl.globjects.GLDisc;
 import com.example.cameraopengl.globjects.GLLine;
 import com.example.cameraopengl.globjects.GLRectangle;
+import com.example.cameraopengl.globjects.GLRectangleTexture;
 
+import javax.microedition.khronos.opengles.GL;
 import javax.microedition.khronos.opengles.GL10;
 
 public class GLRenderer implements GLSurfaceView.Renderer {
 
+    private Context context;
+
+    private GLRectangleTexture glRectangleTexture;
+    private GLDisc glDisc;
     private GLLine glLine;
     private GLRectangle glRectangle;
     private GLCameraTexture glCameraTexture;
@@ -38,7 +49,10 @@ public class GLRenderer implements GLSurfaceView.Renderer {
 
     private SurfaceCallback surfaceCallback;
 
-    public GLRenderer(GLView view) {
+    private int loadedTexture;
+
+    public GLRenderer(Context context, GLView view) {
+        this.context = context;
         this.glView = view;
     }
 
@@ -46,8 +60,18 @@ public class GLRenderer implements GLSurfaceView.Renderer {
     public void onSurfaceCreated(GL10 gl, javax.microedition.khronos.egl.EGLConfig config) {
         GLES20.glClearColor ( 1.0f, 1.0f, 0.0f, 1.0f );
 
+        loadedTexture = loadTexture(context, R.drawable.wood_icon);
+
+        glRectangleTexture = new GLRectangleTexture();
+
+        glLine = new GLLine();
+        glLine.setVertices(0f, 0f, 0f, 3f, 0f, 0f);
+        glLine.setColor(.8f, .2f, .2f, 1.0f);
+
+        glDisc = new GLDisc();
+
         glRectangle = new GLRectangle();
-        glRectangle.setColor(.8f, .8f, 0f, 1.0f);
+        glRectangle.setColor(.8f, .8f, 0f, 0.5f);
 
         glCameraTexture = new GLCameraTexture(glView);
         glCameraTexture.initProgram();
@@ -63,11 +87,11 @@ public class GLRenderer implements GLSurfaceView.Renderer {
 
         // Translate and rotate the rectangle
         Matrix.translateM(rect_matrix, 0, 0, 0, -1f);
-        Matrix.rotateM(rect_matrix, 0, 10, 0, 1, 0);
+        Matrix.rotateM(rect_matrix, 0, 0, 0, 1, 0);
 
         // Create the MVP matrix
         Matrix.frustumM(projectionMatrix, 0, -ratio, ratio, -1f, 1f, 0.1f, 100f);
-        Matrix.setLookAtM(viewMatrix, 0, 0, 0, -3, 0f, 0f, 0f, 0f, 1.0f, 0.0f);
+        Matrix.setLookAtM(viewMatrix, 0, 0, 0, -1.5f, 0f, 0f, 0f, 0f, 1.0f, 0.0f);
         Matrix.multiplyMM(mvpMatrix, 0, projectionMatrix, 0, viewMatrix, 0);
         Matrix.multiplyMM(finalMatrix, 0, mvpMatrix, 0, rect_matrix, 0);
     }
@@ -75,9 +99,14 @@ public class GLRenderer implements GLSurfaceView.Renderer {
     @Override
     public void onDrawFrame ( GL10 unused ) {
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
+        GLES20.glEnable(GLES20.GL_BLEND);
+        GLES20.glBlendFunc(GLES20.GL_SRC_ALPHA, GLES20.GL_ONE_MINUS_SRC_ALPHA);
 
         glCameraTexture.draw();
+        glLine.draw(finalMatrix);
+        glDisc.draw(finalMatrix);
         glRectangle.draw(finalMatrix);
+        glRectangleTexture.draw(loadedTexture, finalMatrix);
     }
 
 
@@ -111,6 +140,38 @@ public class GLRenderer implements GLSurfaceView.Renderer {
         GLES20.glLinkProgram(program);
 
         return program;
+    }
+
+    public static int loadTexture(final Context context, final int resourceId) {
+        final int[] textureHandle = new int[1];
+
+        GLES20.glGenTextures(1, textureHandle, 0);
+
+        if (textureHandle[0] != 0)
+        {
+            final BitmapFactory.Options options = new BitmapFactory.Options();
+            options.inScaled = false;   // No pre-scaling
+
+            // Read in the resource
+            final Bitmap bitmap = BitmapFactory.decodeResource(context.getResources(), resourceId, options);
+
+            // Bind to the texture in OpenGL
+            GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textureHandle[0]);
+
+            // Set filtering
+            GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_NEAREST);
+            GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_NEAREST);
+
+            // Load the bitmap into the bound texture.
+            GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, 0, bitmap, 0);
+
+            // Recycle the bitmap, since its data has been loaded into OpenGL.
+            bitmap.recycle();
+        } else {
+            throw new RuntimeException("Error loading texture.");
+        }
+
+        return textureHandle[0];
     }
 
     public SurfaceTexture getSurfaceTexture() {

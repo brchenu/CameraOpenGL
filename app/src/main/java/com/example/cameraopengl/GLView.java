@@ -11,7 +11,7 @@ public class GLView extends GLSurfaceView {
     public GLView(Context context) {
         super (context);
 
-        glRenderer = new GLRenderer(this);
+        glRenderer = new GLRenderer(context,this);
         setEGLContextClientVersion(2);
         setRenderer(glRenderer);
         setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
