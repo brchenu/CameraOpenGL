@@ -4,6 +4,7 @@ import android.graphics.Point;
 import android.opengl.GLES20;
 import android.util.Log;
 
+import com.example.cameraopengl.GLHelpers;
 import com.example.cameraopengl.GLRenderer;
 
 import java.nio.ByteBuffer;
@@ -61,7 +62,7 @@ public class GLDisc {
         vertexBuffer.put(vertices.array());
         vertexBuffer.position(0);
 
-        glProgram = GLRenderer.loadShader(vertexShaderCode, fragmentShaderCode);
+        glProgram = GLHelpers.loadShader(vertexShaderCode, fragmentShaderCode);
 
         positionAttributeLocation = GLES20.glGetAttribLocation(glProgram, "position");
 

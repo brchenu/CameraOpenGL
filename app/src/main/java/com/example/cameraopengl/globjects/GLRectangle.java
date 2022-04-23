@@ -2,6 +2,7 @@ package com.example.cameraopengl.globjects;
 
 import android.opengl.GLES20;
 
+import com.example.cameraopengl.GLHelpers;
 import com.example.cameraopengl.GLRenderer;
 
 import java.nio.ByteBuffer;
@@ -55,7 +56,7 @@ public class GLRectangle {
         // set the buffer to read the first coordinate
         vertexBuffer.position(0);
 
-        glProgram = GLRenderer.loadShader(vertexShaderCode, fragmentShaderCode);
+        glProgram = GLHelpers.loadShader(vertexShaderCode, fragmentShaderCode);
 
         // Get location to vertex shader's vPosition member
         positionLocation = GLES20.glGetAttribLocation(glProgram, "vPosition");

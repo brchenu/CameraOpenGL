@@ -4,6 +4,7 @@ import android.graphics.SurfaceTexture;
 import android.opengl.GLES11Ext;
 import android.opengl.GLES20;
 
+import com.example.cameraopengl.GLHelpers;
 import com.example.cameraopengl.GLRenderer;
 import com.example.cameraopengl.GLView;
 
@@ -68,7 +69,7 @@ public class GLCameraTexture {
     }
 
     public void initProgram() {
-        program = GLRenderer.loadShader(vertexShaderCode, fragmentShaderCode);
+        program = GLHelpers.loadShader(vertexShaderCode, fragmentShaderCode);
 
         vertexBuffer = ByteBuffer.allocateDirect(8 * 4).order(ByteOrder.nativeOrder()).asFloatBuffer();
         vertexBuffer.put(vertices);
@@ -81,9 +82,6 @@ public class GLCameraTexture {
         locationPosition = GLES20.glGetAttribLocation(program, "vPosition");
         locationTexCoord = GLES20.glGetAttribLocation(program, "vTexCoord");
         locationTexture = GLES20.glGetUniformLocation(program, "sTexture");
-
-        GLES20.glEnableVertexAttribArray(locationPosition);
-        GLES20.glEnableVertexAttribArray(locationTexCoord);
     }
 
     private void initTextures() {
@@ -115,7 +113,9 @@ public class GLCameraTexture {
         GLES20.glBindTexture(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, textureIds[0]);
         GLES20.glUniform1i(locationTexture, 0);
 
+        GLES20.glEnableVertexAttribArray(locationPosition);
         GLES20.glVertexAttribPointer(locationPosition, 2, GLES20.GL_FLOAT, false, 4 * 2, vertexBuffer);
+        GLES20.glEnableVertexAttribArray(locationTexCoord);
         GLES20.glVertexAttribPointer(locationTexCoord, 2, GLES20.GL_FLOAT, false, 4 * 2, texCoordBuffer);
 
         GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, 4);

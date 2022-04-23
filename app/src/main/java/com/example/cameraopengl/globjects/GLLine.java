@@ -2,6 +2,7 @@ package com.example.cameraopengl.globjects;
 
 import android.opengl.GLES20;
 
+import com.example.cameraopengl.GLHelpers;
 import com.example.cameraopengl.GLRenderer;
 
 import java.nio.ByteBuffer;
@@ -11,6 +12,7 @@ import java.nio.FloatBuffer;
 public class GLLine {
 
     private FloatBuffer vertexBuffer;
+    private FloatBuffer colorBuffer;
 
     private final String vertexShaderCode =
             "uniform mat4 uMVPMatrix;" +
@@ -43,27 +45,29 @@ public class GLLine {
     // rgba
     float color[] = { 0.0f, 0.0f, 0.0f, 1.0f };
 
+    int buffers[];
+
     public GLLine() {
-        // initialize vertex byte buffer for shape coordinates
-        // (number of coordinate values * 4 bytes per float)
-        ByteBuffer bb = ByteBuffer.allocateDirect(lineCoords.length * 4);
-        // use the device hardware's native byte order
-        bb.order(ByteOrder.nativeOrder());
-        // create a floating point buffer from the ByteBuffer
-        vertexBuffer = bb.asFloatBuffer();
-        // add the coordinates to the FloatBuffer
+        buffers = new int[1];
+        GLES20.glGenBuffers(1, buffers, 0);
+
+        vertexBuffer = ByteBuffer.allocateDirect(lineCoords.length * 4)
+                .order(ByteOrder.nativeOrder())
+                .asFloatBuffer();
         vertexBuffer.put(lineCoords);
-        // set the buffer to read the first coordinate
         vertexBuffer.position(0);
 
-        glProgram = GLRenderer.loadShader(vertexShaderCode, fragmentShaderCode);
+        GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, buffers[0]);
+        GLES20.glBufferData(GLES20.GL_ARRAY_BUFFER, 6 * 4, vertexBuffer, GLES20.GL_STATIC_DRAW);
+
+        glProgram = GLHelpers.loadShader(vertexShaderCode, fragmentShaderCode);
 
         // Get location to vertex shader's vPosition member
         positionLocation = GLES20.glGetAttribLocation(glProgram, "vPosition");
         GLES20.glEnableVertexAttribArray(positionLocation); // TODO: once per frame ? need to be disable ?
 
         // Get location to fragment shader's uColor member
-        colorLocation = GLES20.glGetUniformLocation(glProgram, "uColor");
+        colorLocation = GLES20.glGetUniformLocation(glProgram, "uColor");;
 
         // Get location to shader's transformation matrix
         mvpMatrixLocation = GLES20.glGetUniformLocation(glProgram, "uMVPMatrix");
@@ -94,15 +98,20 @@ public class GLLine {
         GLES20.glUseProgram(glProgram);
 
         // Set vertex data
-        GLES20.glVertexAttribPointer(positionLocation, COORS_PER_VERTEX, GLES20.GL_FLOAT, false, vertexStride, vertexBuffer);
-        // Set color
+        GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, buffers[0]);
+        //GLES20.glVertexAttribPointer(positionLocation, COORS_PER_VERTEX, GLES20.GL_FLOAT, false, vertexStride, vertexBuffer);
+        GLES20.glEnableVertexAttribArray(positionLocation);
+        GLES20.glVertexAttribPointer(positionLocation, COORS_PER_VERTEX, GLES20.GL_FLOAT, false, vertexStride, 0);
+        GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, 0);
+
         GLES20.glUniform4fv(colorLocation, 1, color, 0);
-        // Set project matrix
         GLES20.glUniformMatrix4fv(mvpMatrixLocation, 1, false , mvpMatrix, 0);
 
         GLES20.glLineWidth(10.0f);
 
         // Draw the triangle
         GLES20.glDrawArrays(GLES20.GL_LINES , 0, vertexCount);
+
+        GLES20.glDisableVertexAttribArray(positionLocation);
     }
 }
