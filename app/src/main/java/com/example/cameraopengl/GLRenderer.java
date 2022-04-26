@@ -7,6 +7,7 @@ import android.opengl.GLSurfaceView;
 import android.opengl.Matrix;
 
 import com.example.cameraopengl.globjects.GLCameraTexture;
+import com.example.cameraopengl.globjects.GLCylinder;
 import com.example.cameraopengl.globjects.GLDisc;
 import com.example.cameraopengl.globjects.GLLine;
 import com.example.cameraopengl.globjects.GLModel;
@@ -23,6 +24,7 @@ public class GLRenderer implements GLSurfaceView.Renderer {
 
     private GLDisc glDisc;
     private GLLine glLine;
+    private GLCylinder glCylinder;
     private GLRectangle glRectangle;
     private GLRectangleTexture glRectangleTexture;
     private GLCameraTexture glCameraTexture;
@@ -64,6 +66,8 @@ public class GLRenderer implements GLSurfaceView.Renderer {
 
         glModel = new GLModel(context);
 
+        glCylinder = new GLCylinder();
+
         glLine = new GLLine();
         glLine.setVertices(0f, 0f, 0f, 3f, 0f, 0f);
         glLine.setColor(.8f, .2f, .2f, 1.0f);
@@ -87,7 +91,7 @@ public class GLRenderer implements GLSurfaceView.Renderer {
 
         // Translate and rotate objects
         Matrix.translateM(modelMatrix, 0, 0, 0, -1f);
-        Matrix.rotateM(modelMatrix, 0, 0, 0, 1, 0);
+        Matrix.rotateM(modelMatrix, 0, 5, 0, 1, 0);
 
         // Create the MVP matrix
         Matrix.frustumM(projectionMatrix, 0, -ratio, ratio, -1f, 1f, 0.1f, 100f);
@@ -108,6 +112,7 @@ public class GLRenderer implements GLSurfaceView.Renderer {
         glDisc.draw(mvpMatrix);
         glRectangle.draw(mvpMatrix);
         glRectangleTexture.draw(mvpMatrix, loadedTexture);
+        glCylinder.draw(mvpMatrix);
 
         //glModel.draw(finalMatrix);
     }
