@@ -53,6 +53,9 @@ public class GLRenderer implements GLSurfaceView.Renderer {
 
     private int programTexture;
 
+    private GLTextureProgram glTextureProgram;
+    private MeshQuad glMeshQuad;
+
     public GLRenderer(Context context, GLView view) {
         this.context = context;
         this.glView = view;
@@ -63,10 +66,12 @@ public class GLRenderer implements GLSurfaceView.Renderer {
         GLES20.glClearColor ( 1.0f, 1.0f, 0.0f, 1.0f );
 
         programTexture = GLHelpers.createProgram(context, "shader/vs_texture.glsl", "shader/fs_texture.glsl");
-
         loadedTexture = GLHelpers.loadTexture(context, R.drawable.wood_icon);
 
-        glRectangleTexture = new GLRectangleTexture(programTexture);
+        glTextureProgram = new GLTextureProgram(context);
+        glMeshQuad = new MeshQuad();
+
+        glRectangleTexture = new GLRectangleTexture(glTextureProgram, glMeshQuad);
 
         glModel = new GLModel(context);
 
@@ -117,7 +122,6 @@ public class GLRenderer implements GLSurfaceView.Renderer {
         glRectangle.draw(mvpMatrix);
         glRectangleTexture.draw(mvpMatrix, loadedTexture);
         //glCylinder.draw(mvpMatrix);
-
         //glModel.draw(finalMatrix);
     }
 

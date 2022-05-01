@@ -1,9 +1,9 @@
-uniform mat4 mvp_matrix;
-attribute vec4 position;
-attribute vec2 uv;
-varying vec2 vuv;
+uniform mat4 u_mvp_matrix;
+attribute vec4 a_position;
+attribute vec2 a_uv;
+varying vec2 v_uv;
 
 void main() {
-   vuv = uv;
-   gl_Position = mvp_matrix * position;
+   v_uv = a_uv;
+   gl_Position = u_mvp_matrix * a_position;
 }

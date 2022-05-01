@@ -113,6 +113,8 @@ public class GLCameraTexture {
         GLES20.glBindTexture(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, textureIds[0]);
         GLES20.glUniform1i(locationTexture, 0);
 
+        GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, 0);
+
         GLES20.glEnableVertexAttribArray(locationPosition);
         GLES20.glVertexAttribPointer(locationPosition, 2, GLES20.GL_FLOAT, false, 4 * 2, vertexBuffer);
         GLES20.glEnableVertexAttribArray(locationTexCoord);
