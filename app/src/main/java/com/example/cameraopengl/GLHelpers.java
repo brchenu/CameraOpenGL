@@ -1,11 +1,17 @@
 package com.example.cameraopengl;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.opengl.GLES20;
 import android.opengl.GLUtils;
 import android.util.Log;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 
 public class GLHelpers {
     public static int loadShader (String vss, String fss) {
@@ -69,5 +75,56 @@ public class GLHelpers {
         }
 
         return textureHandle[0];
+    }
+
+    public static int createProgram(Context context, String vertexCodeFilename, String fragmentCodeFilename) {
+        String vertexShaderCode = readFileAsString(context, vertexCodeFilename);
+        String fragmentShaderCode = readFileAsString(context, fragmentCodeFilename);
+
+        int vShader = createShader(GLES20.GL_VERTEX_SHADER, vertexShaderCode);
+        int fShader = createShader(GLES20.GL_FRAGMENT_SHADER, fragmentShaderCode);
+
+        int program = GLES20.glCreateProgram();
+        GLES20.glAttachShader(program, vShader);
+        GLES20.glAttachShader(program, fShader);
+
+        GLES20.glLinkProgram(program);
+
+        return program;
+    }
+
+    public static int createShader(int shaderType, String shaderCode) {
+        int shader = GLES20.glCreateShader(shaderType);
+
+        GLES20.glShaderSource(shader, shaderCode);
+        GLES20.glCompileShader(shader);
+
+        int[] compiled = new int[1];
+        GLES20.glGetShaderiv(shader, GLES20.GL_COMPILE_STATUS, compiled, 0);
+
+        if (compiled[0] != GLES20.GL_TRUE) {
+            String info = GLES20.glGetShaderInfoLog(shader);
+            GLES20.glDeleteShader(shader);
+            throw new RuntimeException("Could not compile the shader: " + info);
+        }
+
+        return shader;
+    }
+
+    public static String readFileAsString(Context context, String filename) {
+        try {
+            InputStream inputStream = context.getAssets().open(filename);
+            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
+
+            String line;
+            StringBuffer fileContent = new StringBuffer();
+            while ((line = bufferedReader.readLine()) != null) {
+                fileContent.append(line);
+            }
+            bufferedReader.close();
+            return fileContent.toString();
+        } catch (IOException e) {
+            throw new RuntimeException();
+        }
     }
 }

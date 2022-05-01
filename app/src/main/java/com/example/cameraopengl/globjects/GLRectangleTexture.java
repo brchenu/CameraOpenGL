@@ -62,8 +62,9 @@ public class GLRectangleTexture {
 
     private int buffers[];
 
-    public GLRectangleTexture() {
-        glProgram = GLHelpers.loadShader(vertexShaderCode, fragmentShaderCode);
+    public GLRectangleTexture(int program) {
+        //glProgram = GLHelpers.loadShader(vertexShaderCode, fragmentShaderCode);
+        glProgram = program;
 
         buffers = new int[2];
         GLES20.glGenBuffers(2, buffers, 0);

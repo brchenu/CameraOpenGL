@@ -51,6 +51,8 @@ public class GLRenderer implements GLSurfaceView.Renderer {
 
     private int loadedTexture;
 
+    private int programTexture;
+
     public GLRenderer(Context context, GLView view) {
         this.context = context;
         this.glView = view;
@@ -60,9 +62,11 @@ public class GLRenderer implements GLSurfaceView.Renderer {
     public void onSurfaceCreated(GL10 gl, javax.microedition.khronos.egl.EGLConfig config) {
         GLES20.glClearColor ( 1.0f, 1.0f, 0.0f, 1.0f );
 
+        programTexture = GLHelpers.createProgram(context, "shader/vs_texture.glsl", "shader/fs_texture.glsl");
+
         loadedTexture = GLHelpers.loadTexture(context, R.drawable.wood_icon);
 
-        glRectangleTexture = new GLRectangleTexture();
+        glRectangleTexture = new GLRectangleTexture(programTexture);
 
         glModel = new GLModel(context);
 
@@ -112,7 +116,7 @@ public class GLRenderer implements GLSurfaceView.Renderer {
         glDisc.draw(mvpMatrix);
         glRectangle.draw(mvpMatrix);
         glRectangleTexture.draw(mvpMatrix, loadedTexture);
-        glCylinder.draw(mvpMatrix);
+        //glCylinder.draw(mvpMatrix);
 
         //glModel.draw(finalMatrix);
     }

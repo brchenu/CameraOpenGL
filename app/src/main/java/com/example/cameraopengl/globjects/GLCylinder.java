@@ -9,6 +9,22 @@ import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 
 public class GLCylinder {
+
+    class Point3D {
+        public float x;
+        public float y;
+        public float z;
+
+        public Point3D minus(Point3D p) {
+            Point3D point3D = new Point3D();
+            point3D.x = this.x - p.x;
+            point3D.y = this.y - p.y;
+            point3D.z = this.z - p.z;
+
+            return point3D;
+        }
+    }
+
     private String vertexShaderCode =
             "attribute vec4 position;" +
             "attribute vec4 color;" +
